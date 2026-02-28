@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import os
-from typing import List
+from typing import List, Optional
 
 from .ast_grep_splitter import AstGrepConfig
 from .config import AgentConfig
@@ -112,13 +112,34 @@ def _override_llm_client(config: LlmClientConfig) -> LlmClientConfig:
         enable开关允许通过环境变量快速切换。
     """
 
+    # 先读取通用覆盖值
+    enable = _override_bool("LLM_ENABLE", config.enable)
+    base_url = _override_str("LLM_BASE_URL", config.base_url)
+    api_key_env = _override_str("LLM_API_KEY_ENV", config.api_key_env)
+    model = _override_str("LLM_MODEL", config.model)
+    timeout_seconds = _override_int("LLM_TIMEOUT_SECONDS", config.timeout_seconds)
+    max_retries = _override_int("LLM_MAX_RETRIES", config.max_retries)
+
+    # 支持Anthropic按地理位置选择基础URL：优先使用 ANTHROPIC_BASE_URL
+    anthropic_base: str = _override_str("ANTHROPIC_BASE_URL", "")
+    if anthropic_base.strip() != "":
+        base_url = anthropic_base
+    else:
+        region: str = _override_str("ANTHROPIC_REGION", "").strip().lower()
+        if region in {"domestic", "cn", "china"}:
+            base_url = "https://api.minimaxi.com/anthropic"
+        elif region in {"international", "intl", "global"}:
+            base_url = "https://api.minimax.io/anthropic"
+
     return LlmClientConfig(
-        enable=_override_bool("LLM_ENABLE", config.enable),
-        base_url=_override_str("LLM_BASE_URL", config.base_url),
-        api_key_env=_override_str("LLM_API_KEY_ENV", config.api_key_env),
-        model=_override_str("LLM_MODEL", config.model),
-        timeout_seconds=_override_int("LLM_TIMEOUT_SECONDS", config.timeout_seconds),
-        max_retries=_override_int("LLM_MAX_RETRIES", config.max_retries),
+        enable=enable,
+        base_url=base_url,
+        api_key_env=api_key_env,
+        generate_path=_override_str("LLM_GENERATE_PATH", getattr(config, "generate_path", "")),
+        auth_type=_override_str("LLM_AUTH_TYPE", getattr(config, "auth_type", "bearer")),
+        model=model,
+        timeout_seconds=timeout_seconds,
+        max_retries=max_retries,
     )
 
 

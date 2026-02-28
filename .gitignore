@@ -1,0 +1,7 @@
+.longtext_secrets
+# local scripts
+/scripts/*.local
+
+# python cache
+__pycache__/
+*.pyc

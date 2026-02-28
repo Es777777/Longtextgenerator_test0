@@ -28,7 +28,7 @@
     - **禁止AI贡献者标识**:
         - 严禁在commit message中添加 `Co-Authored-By: Claude` 或类似的AI协作标识
         - 严禁添加 `🤖 Generated with Claude Code` 等AI生成标记
-        - 所有提交必须仅显示人类开发者（）作为唯一作者和贡献者
+        - 所有提交必须仅显示人类开发者（Es77777）作为唯一作者和贡献者
         - commit message应简洁专业，不包含任何AI工具署名或生成标识
 
 ## 资料
